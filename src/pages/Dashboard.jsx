@@ -1,22 +1,37 @@
 import StatCard from '../components/ui/StatCard';
 import GlassCard from '../components/ui/GlassCard';
 import EnergyAreaChart from '../charts/EnergyAreaChart';
-import { chartData } from '../data/seed';
 import { useAuth } from '../context/AuthContext';
 
 export default function Dashboard({ live, realtime, history }) {
   const { user } = useAuth();
 
-  // Use real history from backend if available, fallback to seed
+  // ── Build chart data from backend history
+  // solar   = what panels generate
+  // consumption = what home uses
+  // grid    = ONLY import (positive means drawing from grid)
+  // When solar > consumption → grid = 0, surplus charges battery or exports
+  // When solar < consumption → grid = deficit (importing)
   const chartPoints = history && history.length > 0
     ? history.map(h => ({
         time:        h.time,
         solar:       h.solarKw,
         consumption: h.homeKw,
-        grid:        Math.abs(h.gridKw),
-        soc:         h.batteryPct,
+        grid:        h.importKw,   // only show import, not export (avoids confusion)
       }))
-    : chartData;
+    : Array.from({ length: 24 }, (_, i) => {
+        const hour = i;
+        const solar = hour >= 6 && hour <= 19
+          ? parseFloat((Math.sin(((hour - 6) / 13) * Math.PI) * 9.2).toFixed(2))
+          : 0;
+        const consumption = parseFloat((1.2 + Math.sin(i) * 0.4).toFixed(2));
+        return {
+          time:        `${String(hour).padStart(2, '0')}:00`,
+          solar,
+          consumption,
+          grid:        Math.max(0, consumption - solar), // only import
+        };
+      });
 
   const gridStatus = realtime
     ? realtime.grid.flowKw > 0
@@ -26,16 +41,12 @@ export default function Dashboard({ live, realtime, history }) {
       ? `Exporting ${(live.solar - live.cons).toFixed(2)} kW`
       : `Importing ${(live.cons - live.solar).toFixed(2)} kW`;
 
-  const gridColor = realtime
-    ? realtime.grid.flowKw > 0 ? '#FF3B5C' : '#39FF14'
-    : live.solar >= live.cons ? '#39FF14' : '#FF3B5C';
-
-  const batteryStatus = realtime?.battery?.status || 'Charging';
-  const batteryFlowKw = realtime?.battery?.flowKw || 1.2;
+  const gridColor = (realtime?.grid?.flowKw ?? (live.cons - live.solar)) > 0 ? '#FF3B5C' : '#39FF14';
+  const batteryStatus = realtime?.battery?.status || 'charging';
+  const batteryFlowKw = realtime?.battery?.flowKw ?? 1.2;
 
   return (
     <div className="p-4 md:p-6 animate-fade-in">
-      {/* Header */}
       <div className="mb-5">
         <h2 className="font-outfit font-bold text-xl" style={{ color: 'var(--text-primary)' }}>Energy Overview</h2>
         <p className="text-xs mt-1" style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>
@@ -43,22 +54,32 @@ export default function Dashboard({ live, realtime, history }) {
         </p>
       </div>
 
-      {/* Stat Cards */}
       <div className="stats-grid grid grid-cols-4 gap-3 mb-5">
         <StatCard label="Solar"   icon="☀️" value={live.solar.toFixed(2)} unit="kW" delta="↑ Live generation" deltaUp={true}  accent="neon"   />
         <StatCard label="Usage"   icon="🔌" value={live.cons.toFixed(2)}  unit="kW" delta="Home consumption"  deltaUp={false} accent="elec"   />
-        <StatCard label="Battery" icon="🔋" value={live.soc}              unit="%" delta={`${batteryStatus} · η=0.9`} deltaUp={true}  accent="violet" />
+        <StatCard label="Battery" icon="🔋" value={Math.round(live.soc)}  unit="%" delta={`${batteryStatus} · η=0.9`} deltaUp={true} accent="violet" />
         <StatCard label="Export"  icon="⚡" value={Math.max(0, live.solar - live.cons).toFixed(2)} unit="kW" delta="↑ Earning credits" deltaUp={true} accent="amber" />
       </div>
 
-      {/* Charts row */}
       <div className="two-col grid gap-4 mb-5" style={{ gridTemplateColumns: '2fr 1fr' }}>
         <GlassCard>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-2">
             <span className="font-outfit font-bold text-sm" style={{ color: 'var(--text-primary)' }}>24h Energy Flow</span>
             <span className="badge badge-neon">Live</span>
           </div>
-          <EnergyAreaChart data={chartPoints} height={150} />
+          {/* Legend explanation */}
+          <div className="flex gap-4 mb-3">
+            {[['#39FF14','Solar generated'],['#00F0FF','Home usage'],['#8B5CF6','Grid import']].map(([c,l]) => (
+              <div key={l} className="flex items-center gap-1.5">
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: c }} />
+                <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>{l}</span>
+              </div>
+            ))}
+          </div>
+          <EnergyAreaChart data={chartPoints} height={150} showLegend={false} />
+          <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
+            💡 Grid import only shows when solar + battery can't cover usage. When solar &gt; usage, grid = 0.
+          </p>
         </GlassCard>
 
         <GlassCard variant="elec">
@@ -68,7 +89,7 @@ export default function Dashboard({ live, realtime, history }) {
           </div>
           <div className="flex flex-col items-center py-2">
             {(() => {
-              const soc = live.soc;
+              const soc = Math.round(live.soc);
               const r = 40, circ = 2 * Math.PI * r;
               const offset = circ * (1 - soc / 100);
               return (
@@ -81,19 +102,19 @@ export default function Dashboard({ live, realtime, history }) {
                             style={{ filter: 'drop-shadow(0 0 6px rgba(0,240,255,0.6))', transition: 'stroke-dashoffset 0.8s ease' }} />
                   </svg>
                   <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                    <span className="font-outfit font-bold" style={{ fontSize: 22, color: '#00F0FF', textShadow: '0 0 12px rgba(0,240,255,0.6)', lineHeight: 1 }}>{Math.round(live.soc)}</span>
+                    <span className="font-outfit font-bold" style={{ fontSize: 22, color: '#00F0FF', textShadow: '0 0 12px rgba(0,240,255,0.6)', lineHeight: 1 }}>{soc}</span>
                     <span style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>% SOC</span>
                   </div>
                 </div>
               );
             })()}
             <p className="text-xs mt-2" style={{ color: 'var(--electric)', fontFamily: 'JetBrains Mono' }}>
-              {batteryFlowKw > 0 ? `Charging at ${batteryFlowKw.toFixed(1)} kW` : `Discharging at ${Math.abs(batteryFlowKw).toFixed(1)} kW`}
+              {batteryFlowKw > 0 ? `Charging ${batteryFlowKw.toFixed(1)} kW` : `Discharging ${Math.abs(batteryFlowKw).toFixed(1)} kW`}
             </p>
           </div>
           <div className="border-t pt-3 mt-2 flex flex-col gap-1.5" style={{ borderColor: 'var(--border-dim)' }}>
             {[
-              ['η',       '0.90'],
+              ['η', '0.90'],
               ['Surplus', `+${Math.max(0, live.solar - live.cons).toFixed(2)} kW`],
               ['Voltage', realtime ? `${realtime.grid.voltage}V` : '240V'],
             ].map(([k, v]) => (
@@ -106,20 +127,19 @@ export default function Dashboard({ live, realtime, history }) {
         </GlassCard>
       </div>
 
-      {/* Live stream feed */}
       <GlassCard>
         <div className="flex items-center justify-between mb-4">
           <span className="font-outfit font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Live Data Stream</span>
           <span className="badge badge-elec">● Live</span>
         </div>
-        <div className="flex flex-col divide-y" style={{ '--tw-divide-opacity': 1 }}>
+        <div className="flex flex-col divide-y">
           {[
-            ['☀️ Solar now',    `${live.solar.toFixed(2)} kW`,                     'var(--text-primary)'],
-            ['🔌 Consumption',  `${live.cons.toFixed(2)} kW`,                       'var(--text-primary)'],
-            ['🔋 Battery SOC',  `${Math.round(live.soc)}%`,                         '#00F0FF'],
-            ['⚡ Grid',         gridStatus,                                          gridColor],
-            ['📡 Frequency',    realtime ? `${realtime.grid.frequency} Hz` : '50 Hz', 'var(--text-primary)'],
-            ['🌡️ Bat. Temp',   realtime ? `${realtime.battery.tempC}°C` : '—',      'var(--text-primary)'],
+            ['☀️ Solar now',   `${live.solar.toFixed(2)} kW`,      'var(--text-primary)'],
+            ['🔌 Consumption', `${live.cons.toFixed(2)} kW`,        'var(--text-primary)'],
+            ['🔋 Battery SOC', `${Math.round(live.soc)}%`,          '#00F0FF'],
+            ['⚡ Grid',        gridStatus,                           gridColor],
+            ['📡 Frequency',   realtime ? `${realtime.grid.frequency} Hz` : '50 Hz', 'var(--text-primary)'],
+            ['🌡️ Bat. Temp',  realtime ? `${realtime.battery.tempC}°C` : '—',       'var(--text-primary)'],
           ].map(([label, val, color]) => (
             <div key={label} className="flex justify-between items-center py-2.5 text-sm"
                  style={{ borderColor: 'var(--border-dim)' }}>
