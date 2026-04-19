@@ -1,4 +1,5 @@
-import { Menu, Zap } from 'lucide-react';
+import { Menu, Zap, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const pageTitles = {
   dashboard: 'Dashboard',
@@ -12,6 +13,8 @@ const pageTitles = {
 };
 
 export default function Topbar({ activePage, onMenuOpen, onOptimize }) {
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <div className="topbar">
       {/* Hamburger (mobile) */}
@@ -36,6 +39,14 @@ export default function Topbar({ activePage, onMenuOpen, onOptimize }) {
         <div className="live-dot" />
         <span className="text-xs font-semibold" style={{ color: 'var(--electric)', fontFamily: 'JetBrains Mono' }}>LIVE</span>
       </div>
+
+      <button
+        className="btn-ghost w-9 h-9 flex items-center justify-center p-0 ml-2"
+        onClick={toggleTheme}
+        aria-label="Toggle theme"
+      >
+        {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+      </button>
 
       {/* Optimize btn (desktop) */}
       <button
