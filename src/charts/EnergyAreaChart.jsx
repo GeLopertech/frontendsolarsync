@@ -6,13 +6,13 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
-      background: 'rgba(8,8,8,0.95)',
-      border: '1px solid rgba(255,255,255,0.08)',
+      background: 'var(--bg-panel)',
+      border: '1px solid var(--border-dim)',
       borderRadius: 10,
       padding: '10px 14px',
       backdropFilter: 'blur(16px)',
     }}>
-      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginBottom: 6, fontFamily: 'JetBrains Mono' }}>{label}</p>
+      <p style={{ color: 'var(--text-muted)', fontSize: 11, marginBottom: 6, fontFamily: 'JetBrains Mono' }}>{label}</p>
       {payload.map((p) => (
         <p key={p.dataKey} style={{ color: p.color, fontSize: 12, fontFamily: 'JetBrains Mono', marginBottom: 2 }}>
           {p.name}: <strong>{p.value.toFixed(2)} kWh</strong>
@@ -40,21 +40,21 @@ export default function EnergyAreaChart({ data, height = 160, showGrid = true, s
             <stop offset="100%" stopColor="#8B5CF6" stopOpacity={0.02} />
           </linearGradient>
         </defs>
-        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />}
+        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="var(--border-dim)" vertical={false} />}
         <XAxis
           dataKey="time"
-          tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 10, fontFamily: 'JetBrains Mono' }}
+          tick={{ fill: 'var(--text-secondary)', fontSize: 10, fontFamily: 'JetBrains Mono' }}
           axisLine={false} tickLine={false}
         />
         <YAxis
-          tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 10, fontFamily: 'JetBrains Mono' }}
+          tick={{ fill: 'var(--text-secondary)', fontSize: 10, fontFamily: 'JetBrains Mono' }}
           axisLine={false} tickLine={false}
         />
         <Tooltip content={<CustomTooltip />} />
         {showLegend && (
           <Legend
             wrapperStyle={{ fontSize: 11, fontFamily: 'JetBrains Mono', paddingTop: 8 }}
-            formatter={(v) => <span style={{ color: 'rgba(255,255,255,0.5)' }}>{v}</span>}
+            formatter={(v) => <span style={{ color: 'var(--text-secondary)' }}>{v}</span>}
           />
         )}
         <Area type="monotone" dataKey="solar"       name="Solar"       stroke="#39FF14" strokeWidth={2} fill="url(#gradSolar)" dot={false} />

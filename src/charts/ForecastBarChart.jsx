@@ -4,11 +4,11 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
-      background: 'rgba(8,8,8,0.95)',
-      border: '1px solid rgba(255,255,255,0.08)',
+      background: 'var(--bg-panel)',
+      border: '1px solid var(--border-dim)',
       borderRadius: 10, padding: '8px 12px',
     }}>
-      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10, fontFamily: 'JetBrains Mono', marginBottom: 4 }}>{label}</p>
+      <p style={{ color: 'var(--text-muted)', fontSize: 10, fontFamily: 'JetBrains Mono', marginBottom: 4 }}>{label}</p>
       <p style={{ color: '#39FF14', fontSize: 12, fontFamily: 'JetBrains Mono' }}>
         {payload[0]?.value} kWh
       </p>
@@ -26,14 +26,14 @@ export default function ForecastBarChart({ data, height = 160 }) {
             <stop offset="100%" stopColor="#39FF14" stopOpacity={0.2} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--border-dim)" vertical={false} />
         <XAxis
           dataKey="day"
-          tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 10, fontFamily: 'JetBrains Mono' }}
+          tick={{ fill: 'var(--text-secondary)', fontSize: 10, fontFamily: 'JetBrains Mono' }}
           axisLine={false} tickLine={false}
         />
         <YAxis
-          tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 10, fontFamily: 'JetBrains Mono' }}
+          tick={{ fill: 'var(--text-secondary)', fontSize: 10, fontFamily: 'JetBrains Mono' }}
           axisLine={false} tickLine={false}
         />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(57,255,20,0.04)' }} />
