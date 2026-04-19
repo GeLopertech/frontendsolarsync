@@ -1,15 +1,28 @@
 import { useState } from 'react';
 import { Sun } from 'lucide-react';
-import { communities } from '../data/seed';
 
 export default function Login({ onLogin, onShowSignup }) {
-  const [email, setEmail] = useState('alex@solarsync.io');
-  const [pass, setPass] = useState('password123');
+  const [email,   setEmail]   = useState('demo@solarsync.ai');
+  const [pass,    setPass]    = useState('SolarSync2025!');
+  const [error,   setError]   = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email || !pass) { setError('Please enter your email and password.'); return; }
+    setError('');
+    setLoading(true);
+    try {
+      await onLogin(email, pass);
+    } catch (err) {
+      setError(err.message || 'Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-5"
          style={{ background: '#050505' }}>
-      {/* BG grid already on body */}
 
       {/* Glow orbs */}
       <div style={{
@@ -46,18 +59,28 @@ export default function Login({ onLogin, onShowSignup }) {
           <h2 className="font-outfit font-bold text-xl mb-1" style={{ color: 'var(--text-primary)' }}>Welcome back</h2>
           <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>Sign in to your energy dashboard</p>
 
+          {/* Error banner */}
+          {error && (
+            <div className="mb-4 px-4 py-3 rounded-xl text-xs" style={{
+              background: 'rgba(255,59,92,0.1)', border: '1px solid rgba(255,59,92,0.3)', color: '#FF3B5C',
+            }}>
+              {error}
+            </div>
+          )}
+
           <div className="flex flex-col gap-4">
             <div>
               <label className="block text-xs font-medium mb-2" style={{ color: 'var(--text-secondary)', fontFamily: 'IBM Plex Sans' }}>
                 Email address
               </label>
               <input
-                id="login-email"
                 className="form-input"
                 type="email"
                 placeholder="you@example.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                disabled={loading}
               />
             </div>
             <div>
@@ -65,21 +88,33 @@ export default function Login({ onLogin, onShowSignup }) {
                 Password
               </label>
               <input
-                id="login-password"
                 className="form-input"
                 type="password"
                 placeholder="••••••••"
                 value={pass}
                 onChange={e => setPass(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                disabled={loading}
               />
             </div>
             <button
-              id="login-submit-btn"
               className="btn-neon w-full py-3 text-sm mt-1 font-outfit font-semibold"
-              onClick={onLogin}
+              onClick={handleLogin}
+              disabled={loading}
+              style={{ opacity: loading ? 0.7 : 1 }}
             >
-              Sign in →
+              {loading ? '⏳ Signing in…' : 'Sign in →'}
             </button>
+          </div>
+
+          {/* Demo hint */}
+          <div className="mt-4 px-4 py-3 rounded-xl text-xs text-center" style={{
+            background: 'rgba(57,255,20,0.05)', border: '1px solid rgba(57,255,20,0.15)',
+          }}>
+            <span style={{ color: 'var(--text-muted)' }}>Demo: </span>
+            <span style={{ color: '#39FF14', fontFamily: 'JetBrains Mono' }}>demo@solarsync.ai</span>
+            <span style={{ color: 'var(--text-muted)' }}> / </span>
+            <span style={{ color: '#39FF14', fontFamily: 'JetBrains Mono' }}>SolarSync2025!</span>
           </div>
 
           <p className="text-center text-sm mt-5" style={{ color: 'var(--text-muted)' }}>

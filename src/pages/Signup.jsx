@@ -3,19 +3,36 @@ import { Sun, Users } from 'lucide-react';
 import { communities } from '../data/seed';
 
 export default function Signup({ onSignup, onShowLogin }) {
+  const [name,      setName]      = useState('');
+  const [email,     setEmail]     = useState('');
+  const [password,  setPassword]  = useState('');
   const [community, setCommunity] = useState('');
-  const [isNew, setIsNew] = useState(false);
-  const [newName, setNewName] = useState('');
+  const [isNew,     setIsNew]     = useState(false);
+  const [newName,   setNewName]   = useState('');
+  const [error,     setError]     = useState('');
+  const [loading,   setLoading]   = useState(false);
 
   const handleCommunityChange = (val) => {
     setCommunity(val);
     setIsNew(val === 'new');
   };
 
-  const handleSignup = () => {
-    if (!community) { alert('Please select or create a community.'); return; }
-    if (isNew && !newName.trim()) { alert('Please enter a community name.'); return; }
-    onSignup();
+  const handleSignup = async () => {
+    if (!name.trim())  { setError('Please enter your name.'); return; }
+    if (!email.trim()) { setError('Please enter your email.'); return; }
+    if (password.length < 8) { setError('Password must be at least 8 characters.'); return; }
+    if (!community)    { setError('Please select or create a community.'); return; }
+    if (isNew && !newName.trim()) { setError('Please enter a community name.'); return; }
+
+    setError('');
+    setLoading(true);
+    try {
+      await onSignup(name.trim(), email.trim(), password);
+    } catch (err) {
+      setError(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const selectedCommunity = communities.find(c => c.value === community);
@@ -57,18 +74,30 @@ export default function Signup({ onSignup, onShowLogin }) {
           <h2 className="font-outfit font-bold text-xl mb-1" style={{ color: 'var(--text-primary)' }}>Create account</h2>
           <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>Join your community energy network</p>
 
+          {/* Error banner */}
+          {error && (
+            <div className="mb-4 px-4 py-3 rounded-xl text-xs" style={{
+              background: 'rgba(255,59,92,0.1)', border: '1px solid rgba(255,59,92,0.3)', color: '#FF3B5C',
+            }}>
+              {error}
+            </div>
+          )}
+
           <div className="flex flex-col gap-4">
             <div>
               <label className="block text-xs font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Full name</label>
-              <input id="signup-name" className="form-input" type="text" placeholder="Alex Johnson" />
+              <input className="form-input" type="text" placeholder="Alex Johnson"
+                value={name} onChange={e => setName(e.target.value)} disabled={loading} />
             </div>
             <div>
               <label className="block text-xs font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Email address</label>
-              <input id="signup-email" className="form-input" type="email" placeholder="you@example.com" />
+              <input className="form-input" type="email" placeholder="you@example.com"
+                value={email} onChange={e => setEmail(e.target.value)} disabled={loading} />
             </div>
             <div>
               <label className="block text-xs font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Password</label>
-              <input id="signup-password" className="form-input" type="password" placeholder="Min 8 characters" />
+              <input className="form-input" type="password" placeholder="Min 8 characters"
+                value={password} onChange={e => setPassword(e.target.value)} disabled={loading} />
             </div>
 
             {/* Community selector */}
@@ -77,12 +106,8 @@ export default function Signup({ onSignup, onShowLogin }) {
                 Community <span style={{ color: '#FF3B5C' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
-                <select
-                  id="signup-community"
-                  className="form-select"
-                  value={community}
-                  onChange={e => handleCommunityChange(e.target.value)}
-                >
+                <select className="form-select" value={community}
+                  onChange={e => handleCommunityChange(e.target.value)} disabled={loading}>
                   <option value="">— Select a community —</option>
                   {communities.map(c => (
                     <option key={c.value} value={c.value}>{c.label}</option>
@@ -96,7 +121,6 @@ export default function Signup({ onSignup, onShowLogin }) {
                 }}>▾</span>
               </div>
 
-              {/* Badge for selected */}
               {selectedCommunity && !isNew && (
                 <div className="flex items-center gap-2 mt-2 px-3 py-1.5 rounded-full w-fit"
                      style={{ background: 'rgba(0,240,255,0.08)', border: '1px solid var(--border-elec)' }}>
@@ -110,28 +134,22 @@ export default function Signup({ onSignup, onShowLogin }) {
                 </div>
               )}
 
-              {/* New community input */}
               {isNew && (
                 <div className="mt-2 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed var(--border-dim)' }}>
-                  <input
-                    id="signup-new-community"
-                    className="form-input"
-                    type="text"
-                    placeholder="Community name…"
-                    value={newName}
-                    onChange={e => setNewName(e.target.value)}
-                  />
+                  <input className="form-input" type="text" placeholder="Community name…"
+                    value={newName} onChange={e => setNewName(e.target.value)} disabled={loading} />
                   <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>You'll be set as admin of this community.</p>
                 </div>
               )}
             </div>
 
             <button
-              id="signup-submit-btn"
               className="btn-elec w-full py-3 text-sm font-outfit font-semibold"
               onClick={handleSignup}
+              disabled={loading}
+              style={{ opacity: loading ? 0.7 : 1 }}
             >
-              Create account →
+              {loading ? '⏳ Creating account…' : 'Create account →'}
             </button>
           </div>
 
