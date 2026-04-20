@@ -201,8 +201,8 @@ export const weeklyCommunityRates = [
   { day: 'Wed', avgRate: 0.145, status: 'stable' },
   { day: 'Thu', avgRate: 0.162, status: 'up' },
   { day: 'Fri', avgRate: 0.138, status: 'down' },
-  { day: '', avgRate: 0.155, status: 'up' },
-  { day: 'Sat', avgRate: 0.151, status: 'stable' },
-  { day: 'Sun', avgRate: 0.125, status: 'down' },
+  { day: 'Sat', avgRate: 0.155, status: 'up' },
+  { day: 'Sun', avgRate: 0.151, status: 'stable' },
+  { day: 'Mon', avgRate: 0.125, status: 'down' },
   { day: 'Tue', avgRate: 0.132, status: 'up' },
 ];
