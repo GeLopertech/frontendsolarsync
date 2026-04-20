@@ -172,12 +172,12 @@ export default function GridPage({ live }) {
           <BarChart data={monthlyData} margin={{ top:8, right:4, left:-20, bottom:0 }} barSize={12}>
             <defs>
               <linearGradient id="gradGrid" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#FF3B5C" stopOpacity={0.9} />
-                <stop offset="100%" stopColor="#FF3B5C" stopOpacity={0.2} />
+                <stop offset="0%" stopColor="var(--rose)" stopOpacity={0.9} />
+                <stop offset="100%" stopColor="var(--rose)" stopOpacity={0.2} />
               </linearGradient>
               <linearGradient id="gradSolar" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#39FF14" stopOpacity={0.9} />
-                <stop offset="100%" stopColor="#39FF14" stopOpacity={0.2} />
+                <stop offset="0%" stopColor="var(--neon)" stopOpacity={0.9} />
+                <stop offset="100%" stopColor="var(--neon)" stopOpacity={0.2} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-dim)" vertical={false} />
@@ -189,7 +189,7 @@ export default function GridPage({ live }) {
           </BarChart>
         </ResponsiveContainer>
         <div className="flex gap-4 mt-2">
-          {[['#FF3B5C','Grid (EB import)'],['#39FF14','Solar generated']].map(([c,l]) => (
+          {[['var(--rose)','Grid (EB import)'],['var(--neon)','Solar generated']].map(([c,l]) => (
             <div key={l} className="flex items-center gap-1.5">
               <div style={{ width:8,height:8,borderRadius:'50%',background:c }} />
               <span style={{ fontSize:10,color:'var(--text-muted)',fontFamily:'JetBrains Mono' }}>{l}</span>
@@ -203,10 +203,11 @@ export default function GridPage({ live }) {
         {/* EB Calculator */}
         <GlassCard variant="amber">
           <div className="font-outfit font-bold text-sm mb-4" style={{ color:'var(--text-primary)' }}>⚡ EB Bill Calculator</div>
-          <div className="mb-3">
-            <label className="block text-xs mb-1" style={{ color:'var(--text-muted)' }}>Units consumed (kWh) <span className="text-[9px] text-amber-500 ml-1">(Auto-calculated)</span></label>
-            <input className="form-input text-sm" type="number" value={ebUnits} disabled
-              style={{ background: 'rgba(255,255,255,0.02)', color: 'var(--text-secondary)', cursor: 'not-allowed' }} />
+          <div className="mb-4 bg-black/10 dark:bg-white/5 p-3 rounded-lg border border-[var(--border-dim)]">
+            <label className="block text-xs mb-1" style={{ color:'var(--text-muted)' }}>Units Profiled for Month</label>
+            <div className="font-outfit font-bold text-xl" style={{ color: 'var(--text-primary)' }}>
+              {ebUnits} <span className="text-sm font-normal text-amber-500 ml-1" style={{ fontFamily: 'JetBrains Mono' }}>(Auto-calculated)</span>
+            </div>
           </div>
           {/* Slab breakdown */}
           <div className="mb-3 p-3 rounded-xl" style={{ background:'rgba(245,158,11,0.04)', border:'1px solid rgba(245,158,11,0.1)' }}>
@@ -291,11 +292,10 @@ export default function GridPage({ live }) {
                    style={{ borderColor:'var(--border-dim)' }}>
                 <span className="flex-1 text-xs" style={{ color:'var(--text-secondary)' }}>{a.name}</span>
                 <div className="flex items-center gap-1">
-                  <span className="text-[10px]" style={{ color:'var(--text-muted)' }}>hrs/day:</span>
-                  <input type="number" value={a.hoursPerDay} disabled readOnly
-                    style={{ width:40, background:'rgba(255,255,255,0.02)', border:'1px solid var(--border-dim)',
-                      borderRadius:6, padding:'2px 4px', color:'var(--text-secondary)', fontSize:11,
-                      fontFamily:'JetBrains Mono', textAlign:'center', cursor: 'not-allowed' }} />
+                  <span className="text-[10px]" style={{ color:'var(--text-muted)' }}>System logged usage:</span>
+                  <span className="text-xs font-semibold" style={{ color:'var(--text-secondary)', fontFamily:'JetBrains Mono' }}>
+                    {a.hoursPerDay} hrs/day
+                  </span>
                 </div>
                 <span style={{ color:'var(--text-muted)', fontSize:10, fontFamily:'JetBrains Mono', minWidth:52, textAlign:'right' }}>
                   {kwhPerMonth} kWh

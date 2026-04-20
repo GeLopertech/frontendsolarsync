@@ -156,6 +156,23 @@ export default function Forecast() {
         }
       </div>
 
+      {/* AI Smart Suggestion based on weather */}
+      <GlassCard variant="neon" className="mb-5">
+        <div className="flex items-start gap-3">
+          <span style={{ fontSize: 24 }}>🧠</span>
+          <div>
+            <div className="font-outfit font-bold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>AI Weather Recommendation</div>
+            <p className="text-xs" style={{ color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              {!loading && today.cloud > 50 
+                ? `Heavy cloud cover expected today (${today.cloud}%). Solar yield will be low. Conserve energy by delaying heavy appliances like washing machines. Wait for clearer days to avoid grid import.`
+                : !loading 
+                  ? `Clear skies today (${today.cloud ?? 0}% clouds)! This is an optimal time to run high-load appliances (AC, washing machine) and automatically sell surplus solar generation to the community P2P network.`
+                  : "Analyzing forecast..."}
+            </p>
+          </div>
+        </div>
+      </GlassCard>
+
       {/* Charts */}
       <div className="two-col grid gap-4 mb-5" style={{ gridTemplateColumns: '1fr 1fr' }}>
         <GlassCard>
