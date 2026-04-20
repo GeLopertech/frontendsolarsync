@@ -12,21 +12,25 @@ import Community from './pages/Community';
 import Insights from './pages/Insights';
 import Reports from './pages/Reports';
 import WasteDetector from './pages/WasteDetector';
+import GridDashboard from './pages/GridDashboard';
 import { useAuth } from './context/AuthContext';
+import { useUserProfile } from './context/UserContext';
 import { useSolar } from './hooks/useSolar';
 
-// ── Inner app — only rendered when authed ─────────────────────────────────────
 function AppShell() {
   const { logout } = useAuth();
-  const { live, realtime, history, monthly, loading: solarLoading } = useSolar(30_000);
+  const { clearProfile } = useUserProfile();
+  const { live, realtime, history, monthly } = useSolar(30_000);
 
   const [page,        setPage]        = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const navigate = useCallback((p) => {
-    setPage(p);
-    setSidebarOpen(false);
-  }, []);
+  const navigate = useCallback((p) => { setPage(p); setSidebarOpen(false); }, []);
+
+  const handleLogout = useCallback(async () => {
+    await logout();
+    clearProfile();
+  }, [logout, clearProfile]);
 
   const runOptimizer = () => {
     const btn = document.getElementById('topbar-optimize-btn');
@@ -48,91 +52,44 @@ function AppShell() {
     insights:  Insights,
     reports:   Reports,
     waste:     WasteDetector,
+    grid:      GridDashboard,
   };
 
   const PageComponent = pages[page] || Dashboard;
 
   return (
     <div style={{ minHeight: '100vh' }}>
-      {/* Mobile overlay */}
-      <div
-        className={`overlay ${sidebarOpen ? 'show' : ''}`}
-        onClick={() => setSidebarOpen(false)}
-      />
-
-      <Sidebar
-        activePage={page}
-        onNavigate={navigate}
-        onLogout={logout}
-        className={sidebarOpen ? 'open' : ''}
-      />
-      {sidebarOpen && (
-        <style>{`.sidebar { transform: translateX(0) !important; }`}</style>
-      )}
-
+      <div className={`overlay ${sidebarOpen ? 'show' : ''}`} onClick={() => setSidebarOpen(false)} />
+      <Sidebar activePage={page} onNavigate={navigate} onLogout={handleLogout} className={sidebarOpen ? 'open' : ''} />
+      {sidebarOpen && <style>{`.sidebar { transform: translateX(0) !important; }`}</style>}
       <div className="main-content" style={{ minHeight: '100vh' }}>
-        <Topbar
-          activePage={page}
-          onMenuOpen={() => setSidebarOpen(true)}
-          onOptimize={runOptimizer}
-        />
-        {/* Pass live + full realtime/history to pages */}
-        <PageComponent
-          live={live}
-          realtime={realtime}
-          history={history}
-          monthly={monthly}
-          solarLoading={solarLoading}
-        />
+        <Topbar activePage={page} onMenuOpen={() => setSidebarOpen(true)} onOptimize={runOptimizer} />
+        <PageComponent live={live} realtime={realtime} history={history} monthly={monthly} />
       </div>
-
       <BottomNav activePage={page} onNavigate={navigate} />
     </div>
   );
 }
 
-// ── Root — shows auth screens or app shell ─────────────────────────────────────
 export default function App() {
-  const { isAuthed, loading, login, register, logout } = useAuth();
+  const { isAuthed, loading, login, register } = useAuth();
   const [authView, setAuthView] = useState('login');
 
-  // Loading screen while restoring session
   if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh', background: '#050505',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexDirection: 'column', gap: 16,
-      }}>
-        <div style={{
-          width: 40, height: 40, borderRadius: '50%',
-          border: '2px solid rgba(57,255,20,0.2)',
-          borderTop: '2px solid #39FF14',
-          animation: 'spin 0.8s linear infinite',
-        }} />
+      <div style={{ minHeight: '100vh', background: '#050505', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
+        <div style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid rgba(57,255,20,0.2)', borderTop: '2px solid #39FF14', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12, fontFamily: 'JetBrains Mono' }}>
-          Restoring session…
-        </p>
+        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12, fontFamily: 'JetBrains Mono' }}>Restoring session…</p>
       </div>
     );
   }
 
   if (!isAuthed) {
     if (authView === 'login') {
-      return (
-        <Login
-          onLogin={login}
-          onShowSignup={() => setAuthView('signup')}
-        />
-      );
+      return <Login onLogin={login} onShowSignup={() => setAuthView('signup')} />;
     }
-    return (
-      <Signup
-        onSignup={register}
-        onShowLogin={() => setAuthView('login')}
-      />
-    );
+    return <Signup onSignup={register} onShowLogin={() => setAuthView('login')} />;
   }
 
   return <AppShell />;
