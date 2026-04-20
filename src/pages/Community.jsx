@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import GlassCard from '../components/ui/GlassCard';
 import StatCard from '../components/ui/StatCard';
 import { communityMembers, weeklyCommunityRates } from '../data/seed';
