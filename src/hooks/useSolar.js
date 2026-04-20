@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { solarApi } from '../lib/api';
 
-export function useSolar(pollInterval = 30_000) {
+export function useSolar(pollInterval = 600_000) {
   const [realtime,     setRealtime]     = useState(null);
   const [history,      setHistory]      = useState([]);
   const [monthly,      setMonthly]      = useState(null);

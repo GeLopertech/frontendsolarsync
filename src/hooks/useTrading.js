@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { tradingApi } from '../lib/api';
 
-export function useTrading(pollInterval = 60_000) {
+export function useTrading(pollInterval = 600_000) {
   const [prices,  setPrices]  = useState(null);
   const [offers,  setOffers]  = useState([]);
   const [history, setHistory] = useState([]);

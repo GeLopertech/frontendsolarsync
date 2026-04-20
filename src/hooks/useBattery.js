@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { batteryApi } from '../lib/api';
 
-export function useBattery(pollInterval = 30_000) {
+export function useBattery(pollInterval = 600_000) {
   const [status,   setStatus]   = useState(null);
   const [schedule, setSchedule] = useState([]);
   const [loading,  setLoading]  = useState(true);

@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { alertsApi } from '../lib/api';
 
-export function useAlerts(pollInterval = 60_000) {
+export function useAlerts(pollInterval = 600_000) {
   const [alerts,  setAlerts]  = useState([]);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(null);

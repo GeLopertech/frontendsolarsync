@@ -20,7 +20,7 @@ import { useSolar } from './hooks/useSolar';
 function AppShell() {
   const { logout } = useAuth();
   const { clearProfile } = useUserProfile();
-  const { live, realtime, history, monthly } = useSolar(30_000);
+  const { live, realtime, history, monthly } = useSolar(600_000); // Poll every 10 minutes as requested
 
   const [page,        setPage]        = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);

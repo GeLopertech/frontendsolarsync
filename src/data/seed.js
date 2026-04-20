@@ -188,3 +188,13 @@ export const energySavingTips = [
   { icon:'🌡️', title:'Water heater timer', body:'Set water heater to run 30 min before use, not all day. Saves 2–3 kWh daily.', saving:'₹150/month' },
   { icon:'🏠', title:'Seal windows and doors', body:'Air leaks make AC work harder. Sealing gaps reduces AC load by up to 20%.', saving:'₹300/month' },
 ];
+// ── Weekly Community rates (last 7 days) ──────────────────────────────────────
+export const weeklyCommunityRates = [
+  { day: 'Mon', avgRate: 0.145, status: 'stable' },
+  { day: 'Tue', avgRate: 0.162, status: 'up' },
+  { day: 'Wed', avgRate: 0.138, status: 'down' },
+  { day: 'Thu', avgRate: 0.155, status: 'up' },
+  { day: 'Fri', avgRate: 0.151, status: 'stable' },
+  { day: 'Sat', avgRate: 0.125, status: 'down' },
+  { day: 'Sun', avgRate: 0.132, status: 'up' },
+];

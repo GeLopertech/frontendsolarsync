@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import GlassCard from '../components/ui/GlassCard';
 import StatCard from '../components/ui/StatCard';
-import { communityMembers } from '../data/seed';
+import { communityMembers, weeklyCommunityRates } from '../data/seed';
 import { useTrading } from '../hooks/useTrading';
 
 // ── Bill receipt component ────────────────────────────────────────────────────
@@ -100,6 +100,27 @@ export default function Community() {
   const [error,     setError]     = useState('');
   const [bill,      setBill]      = useState(null);
 
+  // ── Price Alert state ───────────────────────────────────────────────────
+  const [targetBuyPrice,  setTargetBuyPrice]  = useState('');
+  const [targetSellPrice, setTargetSellPrice] = useState('');
+  const [activeAlerts,    setActiveAlerts]    = useState([]);
+
+  // Check prices for alerts
+  useEffect(() => {
+    if (!prices) return;
+    const hits = [];
+    const tBuy = parseFloat(targetBuyPrice);
+    const tSell = parseFloat(targetSellPrice);
+
+    if (tBuy && prices.buyPricePerKwh <= tBuy) {
+      hits.push({ type: 'buy', msg: `Target Hit! Buying price is now ₹${prices.buyPricePerKwh.toFixed(3)} (≤ ₹${tBuy})` });
+    }
+    if (tSell && prices.sellPricePerKwh >= tSell) {
+      hits.push({ type: 'sell', msg: `Target Hit! Selling price is now ₹${prices.sellPricePerKwh.toFixed(3)} (≥ ₹${tSell})` });
+    }
+    setActiveAlerts(hits);
+  }, [prices, targetBuyPrice, targetSellPrice]);
+
   const doSell = async () => {
     const qty   = parseFloat(sellQty);
     const price = parseFloat(sellPrice) || prices?.sellPricePerKwh || 0.15;
@@ -130,6 +151,25 @@ export default function Community() {
         </h2>
         <p className="text-xs mt-1" style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>P2P energy trading · Live market</p>
       </div>
+
+      {/* Active Price Alerts */}
+      {activeAlerts.length > 0 && (
+        <div className="flex flex-col gap-2 mb-5">
+          {activeAlerts.map((a, i) => (
+            <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl animate-pulse"
+                 style={{
+                   background: a.type === 'buy' ? 'rgba(0,240,255,0.08)' : 'rgba(57,255,20,0.08)',
+                   border: `1px solid ${a.type === 'buy' ? 'rgba(0,240,255,0.3)' : 'rgba(57,255,20,0.3)'}`,
+                 }}>
+              <span style={{ fontSize: 18 }}>🔔</span>
+              <div className="flex-1">
+                <div className="text-xs font-bold font-outfit" style={{ color: a.type === 'buy' ? '#00F0FF' : '#39FF14' }}>Market Alert</div>
+                <div className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>{a.msg}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="stats-grid grid grid-cols-4 gap-3 mb-5">
         <StatCard label="Buy Price"  icon="📥" value={prices ? (prices.buyPricePerKwh * 100).toFixed(1)  : '—'} unit="¢/kWh" delta="Community rate" accent="elec"   />
@@ -192,6 +232,64 @@ export default function Community() {
               onClick={doSell} disabled={busy || loading}>
               {busy ? '⏳ Posting…' : '📤 Post sell offer →'}
             </button>
+          </div>
+        </GlassCard>
+      </div>
+
+      <div className="community-grid grid gap-4 mb-5" style={{ gridTemplateColumns: '1fr 1fr' }}>
+        {/* Weekly Rate List */}
+        <GlassCard>
+          <div className="flex items-center justify-between mb-4">
+            <span className="font-outfit font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Week's Rate List</span>
+            <span className="badge badge-amber">7-Day History</span>
+          </div>
+          <div className="flex flex-col gap-2">
+            {weeklyCommunityRates.map((r, i) => (
+              <div key={r.day} className="flex items-center justify-between py-2 border-b last:border-0"
+                   style={{ borderColor: 'var(--border-dim)' }}>
+                <span className="text-xs font-medium" style={{ color: i === 6 ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                  {r.day} {i === 6 ? '(Today)' : ''}
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px]" style={{ color: r.status === 'up' ? '#FF3B5C' : r.status === 'down' ? '#39FF14' : 'var(--text-muted)' }}>
+                    {r.status === 'up' ? '▲' : r.status === 'down' ? '▼' : '●'}
+                  </span>
+                  <span className="font-outfit font-bold text-xs" style={{ color: 'var(--text-secondary)', fontFamily: 'JetBrains Mono' }}>
+                    ₹{r.avgRate.toFixed(3)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </GlassCard>
+
+        {/* Set Price Alerts */}
+        <GlassCard variant="elec">
+          <div className="flex items-center justify-between mb-4">
+            <span className="font-outfit font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Set Price Alerts</span>
+            <span className="badge badge-elec">⚡ Smart Monitor</span>
+          </div>
+          <p className="text-[10px] mb-4" style={{ color: 'var(--text-muted)' }}>Get notified when the community market hits your target rates.</p>
+          <div className="flex flex-col gap-4">
+            <div>
+              <label className="block text-[10px] uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-muted)' }}>Alert when Buy Price ≤</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted">₹</span>
+                <input className="form-input text-xs pl-6" type="number" step="0.001" placeholder="e.g. 0.120"
+                  value={targetBuyPrice} onChange={e => setTargetBuyPrice(e.target.value)} />
+              </div>
+            </div>
+            <div>
+              <label className="block text-[10px] uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-muted)' }}>Alert when Sell Price ≥</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted">₹</span>
+                <input className="form-input text-xs pl-6" type="number" step="0.001" placeholder="e.g. 0.180"
+                  value={targetSellPrice} onChange={e => setTargetSellPrice(e.target.value)} />
+              </div>
+            </div>
+            <div className="text-[9px] italic" style={{ color: 'var(--text-muted)' }}>
+              Notifications will appear prominently at the top of this page.
+            </div>
           </div>
         </GlassCard>
       </div>
