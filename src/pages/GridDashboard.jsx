@@ -3,6 +3,7 @@ import GlassCard from '../components/ui/GlassCard';
 import StatCard from '../components/ui/StatCard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { useUserProfile } from '../context/UserContext';
+import { useTheme } from '../context/ThemeContext';
 
 const APPLIANCES_DEFAULT = [
   { id: 1, name: 'Air Conditioner', icon: '❄️', watts: 1500, hoursPerDay: 8  },
@@ -40,9 +41,9 @@ export default function GridDashboard({ live }) {
   const limitKwh = userProfile?.usageLimitKwh || 300;
   const currency = userProfile?.currency  || '₹';
   const ebName   = userProfile?.ebName    || 'TANGEDCO';
+  const { theme }  = useTheme();
 
-  // ── EB Calculator state ───────────────────────────────────────────────────
-  const [ebUnits,    setEbUnits]    = useState('200');
+  // ── Calculator state ───────────────────────────────────────────────────
   const [activeTab,  setActiveTab]  = useState('calculator'); // calculator | monthly | solar | appliances | tips
 
   // ── Appliance estimator state ─────────────────────────────────────────────
@@ -153,38 +154,28 @@ export default function GridDashboard({ live }) {
       {activeTab === 'calculator' && (
         <GlassCard variant="amber">
           <div className="font-outfit font-bold text-sm mb-4" style={{ color: 'var(--text-primary)' }}>🧮 EB Bill Calculator ({ebName})</div>
-          <div className="mb-4">
-            <label className="block text-xs mb-2" style={{ color: 'var(--text-muted)' }}>Enter units consumed (kWh)</label>
-            <input className="form-input text-2xl font-outfit font-bold text-center"
-              type="number" min="0" max="2000" value={ebUnits}
-              onChange={e => setEbUnits(e.target.value)}
-              style={{ color: '#F59E0B', background: 'rgba(245,158,11,0.05)' }} />
+          
+          <div className="mb-4 bg-black/10 dark:bg-white/5 p-3 rounded-lg border border-[var(--border-dim)]">
+            <label className="block text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Estimated Month Units (Auto-calculated)</label>
+            <div className="font-outfit font-bold text-2xl" style={{ color: '#F59E0B' }}>
+              {estimatedMonthly.toFixed(0)} <span className="text-sm font-normal text-amber-500 ml-1" style={{ fontFamily: 'JetBrains Mono' }}>(kWh)</span>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            {[50,100,200,300,400,500].map(u => (
-              <button key={u} onClick={() => setEbUnits(String(u))}
-                style={{ padding: '8px', borderRadius: 8, fontSize: 11, fontFamily: 'JetBrains Mono', cursor: 'pointer',
-                  background: ebUnits === String(u) ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${ebUnits === String(u) ? 'rgba(245,158,11,0.4)' : 'var(--border-dim)'}`,
-                  color: ebUnits === String(u) ? '#F59E0B' : 'var(--text-muted)' }}>
-                {u} units
-              </button>
-            ))}
-          </div>
+
           <div className="p-4 rounded-xl text-center"
                style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
             <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Estimated Bill</div>
             <div className="font-outfit font-black" style={{ fontSize: 48, color: '#F59E0B', lineHeight: 1 }}>
-              {currency}{calcBill(ebUnits)}
+              {currency}{calcBill(estimatedMonthly.toFixed(0))}
             </div>
             <div className="text-xs mt-1" style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>
-              {ebUnits} units · {currency}{ebRate}/kWh base rate
+              {estimatedMonthly.toFixed(0)} units · {currency}{ebRate}/kWh base rate
             </div>
           </div>
-          {parseFloat(ebUnits) > 200 && (
+          {estimatedMonthly > 200 && (
             <div className="mt-3 text-xs p-3 rounded-xl"
                  style={{ background: 'rgba(57,255,20,0.05)', border: '1px solid rgba(57,255,20,0.15)', color: '#39FF14' }}>
-              💡 Installing 2kW solar could reduce this bill by ~{currency}{Math.round(calcBill(ebUnits) * 0.6)}/month
+              💡 Installing 2kW solar could reduce this bill by ~{currency}{Math.round(calcBill(estimatedMonthly.toFixed(0)) * 0.6)}/month
             </div>
           )}
         </GlassCard>
@@ -199,14 +190,14 @@ export default function GridDashboard({ live }) {
               <BarChart data={monthlyData} barSize={18}>
                 <defs>
                   <linearGradient id="barUnit" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#00F0FF" stopOpacity={0.9} />
-                    <stop offset="100%" stopColor="#00F0FF" stopOpacity={0.2} />
+                    <stop offset="0%" stopColor={theme === 'light' ? '#0284c7' : '#00F0FF'} stopOpacity={0.9} />
+                    <stop offset="100%" stopColor={theme === 'light' ? '#0284c7' : '#00F0FF'} stopOpacity={0.2} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ background: 'rgba(8,8,8,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, fontFamily: 'JetBrains Mono', fontSize: 12 }}
+                <CartesianGrid strokeDasharray="3 3" stroke={theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.06)'} vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: theme === 'light' ? '#334155' : 'rgba(255,255,255,0.35)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: theme === 'light' ? '#334155' : 'rgba(255,255,255,0.25)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ background: theme === 'light' ? '#fff' : 'rgba(8,8,8,0.95)', border: '1px solid var(--border-dim)', borderRadius: 10, fontFamily: 'JetBrains Mono', fontSize: 12, color: 'var(--text-primary)' }}
                   formatter={v => [`${v} kWh`, 'Units']} />
                 <Bar dataKey="units" fill="url(#barUnit)" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -216,10 +207,10 @@ export default function GridDashboard({ live }) {
             <div className="font-outfit font-bold text-sm mb-4" style={{ color: 'var(--text-primary)' }}>💸 Bill Prediction (next 6 months)</div>
             <ResponsiveContainer width="100%" height={180}>
               <LineChart data={billPrediction}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ background: 'rgba(8,8,8,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, fontFamily: 'JetBrains Mono', fontSize: 12 }}
+                <CartesianGrid strokeDasharray="3 3" stroke={theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.06)'} vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: theme === 'light' ? '#334155' : 'rgba(255,255,255,0.35)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: theme === 'light' ? '#334155' : 'rgba(255,255,255,0.25)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ background: theme === 'light' ? '#fff' : 'rgba(8,8,8,0.95)', border: '1px solid var(--border-dim)', borderRadius: 10, fontFamily: 'JetBrains Mono', fontSize: 12, color: 'var(--text-primary)' }}
                   formatter={v => [`${currency}${v}`, 'Bill']} />
                 <Line type="monotone" dataKey="bill" stroke="#F59E0B" strokeWidth={2} dot={{ fill: '#F59E0B', r: 4 }}
                   style={{ filter: 'drop-shadow(0 0 4px rgba(245,158,11,0.6))' }} />
@@ -259,17 +250,13 @@ export default function GridDashboard({ live }) {
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs block mb-1" style={{ color: 'var(--text-muted)' }}>Watts: {a.watts}W</label>
-                    <input type="range" min="10" max="5000" step="10" value={a.watts}
-                      onChange={e => setAppliances(prev => prev.map((ap, i) => i === idx ? { ...ap, watts: +e.target.value } : ap))}
-                      style={{ width: '100%', accentColor: '#F59E0B' }} />
+                  <div className="bg-white/5 p-2 rounded-lg">
+                    <label className="text-[10px] block mb-1 uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Power Draw</label>
+                    <div className="text-sm font-semibold" style={{ color: 'var(--text-secondary)', fontFamily: 'JetBrains Mono' }}>{a.watts.toLocaleString()} W</div>
                   </div>
-                  <div>
-                    <label className="text-xs block mb-1" style={{ color: 'var(--text-muted)' }}>Hours/day: {a.hoursPerDay}h</label>
-                    <input type="range" min="0.5" max="24" step="0.5" value={a.hoursPerDay}
-                      onChange={e => setAppliances(prev => prev.map((ap, i) => i === idx ? { ...ap, hoursPerDay: +e.target.value } : ap))}
-                      style={{ width: '100%', accentColor: '#00F0FF' }} />
+                  <div className="bg-white/5 p-2 rounded-lg">
+                    <label className="text-[10px] block mb-1 uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>System Logged</label>
+                    <div className="text-sm font-semibold" style={{ color: 'var(--text-secondary)', fontFamily: 'JetBrains Mono' }}>{a.hoursPerDay} h/day</div>
                   </div>
                 </div>
               </div>
