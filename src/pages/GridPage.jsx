@@ -3,6 +3,7 @@ import GlassCard from '../components/ui/GlassCard';
 import StatCard from '../components/ui/StatCard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, ReferenceLine } from 'recharts';
 import { useCommunity } from '../context/CommunityContext';
+import { useTheme } from '../context/ThemeContext';
 import { calcEBBill, energySavingTips } from '../data/seed';
 
 // ── Monthly grid data generator based on community profile ───────────────────
@@ -53,6 +54,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function GridPage({ live }) {
   const { community } = useCommunity();
+  const { theme } = useTheme();
 
   const tariffSlabs  = community?.tariffSlabs  || [{ upTo:100,rate:0 },{ upTo:200,rate:1.5 },{ upTo:500,rate:3 },{ upTo:Infinity,rate:4.5 }];
   const fixedCharge  = community?.fixedCharge  || 30;
@@ -172,24 +174,24 @@ export default function GridPage({ live }) {
           <BarChart data={monthlyData} margin={{ top:8, right:4, left:-20, bottom:0 }} barSize={12}>
             <defs>
               <linearGradient id="gradGrid" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--rose)" stopOpacity={0.9} />
-                <stop offset="100%" stopColor="var(--rose)" stopOpacity={0.2} />
+                <stop offset="0%" stopColor={theme === 'light' ? '#e11d48' : '#FF3B5C'} stopOpacity={0.9} />
+                <stop offset="100%" stopColor={theme === 'light' ? '#e11d48' : '#FF3B5C'} stopOpacity={0.2} />
               </linearGradient>
               <linearGradient id="gradSolar" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--neon)" stopOpacity={0.9} />
-                <stop offset="100%" stopColor="var(--neon)" stopOpacity={0.2} />
+                <stop offset="0%" stopColor={theme === 'light' ? '#16a34a' : '#39FF14'} stopOpacity={0.9} />
+                <stop offset="100%" stopColor={theme === 'light' ? '#16a34a' : '#39FF14'} stopOpacity={0.2} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-dim)" vertical={false} />
-            <XAxis dataKey="month" tick={{ fill:'var(--text-secondary)', fontSize:10, fontFamily:'JetBrains Mono' }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fill:'var(--text-secondary)', fontSize:10 }} axisLine={false} tickLine={false} />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill:'var(--border-dim)' }} />
+            <CartesianGrid strokeDasharray="3 3" stroke={theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.06)'} vertical={false} />
+            <XAxis dataKey="month" tick={{ fill: theme === 'light' ? '#334155' : 'rgba(255,255,255,0.35)', fontSize:10, fontFamily:'JetBrains Mono' }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: theme === 'light' ? '#334155' : 'rgba(255,255,255,0.25)', fontSize:10 }} axisLine={false} tickLine={false} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.03)' }} />
             <Bar dataKey="grid"  name="Grid (EB)" fill="url(#gradGrid)"  radius={[3,3,0,0]} />
             <Bar dataKey="solar" name="Solar"      fill="url(#gradSolar)" radius={[3,3,0,0]} />
           </BarChart>
         </ResponsiveContainer>
         <div className="flex gap-4 mt-2">
-          {[['var(--rose)','Grid (EB import)'],['var(--neon)','Solar generated']].map(([c,l]) => (
+          {[[theme === 'light' ? '#e11d48' : '#FF3B5C','Grid (EB import)'],[theme === 'light' ? '#16a34a' : '#39FF14','Solar generated']].map(([c,l]) => (
             <div key={l} className="flex items-center gap-1.5">
               <div style={{ width:8,height:8,borderRadius:'50%',background:c }} />
               <span style={{ fontSize:10,color:'var(--text-muted)',fontFamily:'JetBrains Mono' }}>{l}</span>
