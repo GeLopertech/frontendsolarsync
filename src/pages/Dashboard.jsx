@@ -84,8 +84,8 @@ export default function Dashboard({ live, realtime, history }) {
         : `Exporting ${Math.abs(realtime.grid.flowKw).toFixed(2)} kW`)
     : live.cons > live.solar ? `Importing ${(live.cons - live.solar).toFixed(2)} kW` : 'Balanced';
 
-  const gridColor = connType === 'solar' ? '#39FF14'
-    : (realtime?.grid?.flowKw ?? (live.cons - live.solar)) > 0 ? '#FF3B5C' : '#39FF14';
+  const gridColor = connType === 'solar' ? 'var(--neon)'
+    : (realtime?.grid?.flowKw ?? (live.cons - live.solar)) > 0 ? 'var(--rose)' : 'var(--neon)';
 
   const estimatedBill = ((live.cons * 24 * 30 * 0.3) * ebRate).toFixed(0); // 30% grid portion estimate
 
@@ -202,13 +202,13 @@ export default function Dashboard({ live, realtime, history }) {
                 return (
                   <div style={{ position: 'relative', width: 100, height: 100 }}>
                     <svg width="100" height="100" viewBox="0 0 100 100" style={{ transform: 'rotate(-90deg)' }}>
-                      <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="7" />
-                      <circle cx="50" cy="50" r={r} fill="none" stroke="#00F0FF" strokeWidth="7"
+                      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--border-dim)" strokeWidth="7" />
+                      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--electric)" strokeWidth="7"
                         strokeDasharray={circ.toFixed(1)} strokeDashoffset={offset.toFixed(1)} strokeLinecap="round"
-                        style={{ filter: 'drop-shadow(0 0 6px rgba(0,240,255,0.6))', transition: 'stroke-dashoffset 0.8s ease' }} />
+                        style={{ filter: 'drop-shadow(var(--glow-elec))', transition: 'stroke-dashoffset 0.8s ease' }} />
                     </svg>
                     <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                      <span className="font-outfit font-bold" style={{ fontSize: 22, color: '#00F0FF', lineHeight: 1 }}>{soc}</span>
+                      <span className="font-outfit font-bold" style={{ fontSize: 22, color: 'var(--electric)', lineHeight: 1 }}>{soc}</span>
                       <span style={{ fontSize: 9, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>% SOC</span>
                     </div>
                   </div>
@@ -250,11 +250,12 @@ export default function Dashboard({ live, realtime, history }) {
         <div className="flex flex-col divide-y">
           {[
             connType !== 'grid'   && ['☀️ Solar now',    `${live.solar.toFixed(2)} kW`,      'var(--text-primary)'],
-            ['🔌 Consumption',                            `${live.cons.toFixed(2)} kW`,        'var(--text-primary)'],
-            connType !== 'grid'   && ['🔋 Battery SOC',  `${Math.round(live.soc)}%`,          '#00F0FF'],
-            connType !== 'solar'  && ['⚡ Grid',          gridStatus,                           gridColor],
-            ['💸 EB Rate',                                `${currency}${ebRate}/kWh`,          '#F59E0B'],
-            connType !== 'solar'  && ['📊 Usage limit',  `${limitKwh} kWh/month`,             '#8B5CF6'],
+            connType !== 'grid'   && ['🧹 Panel Dust',   '14% (Optimal)',                    'var(--amber)'],
+            ['🔌 Consumption',                            `${live.cons.toFixed(2)} kW`,      'var(--text-primary)'],
+            connType !== 'grid'   && ['🔋 Battery SOC',  `${Math.round(live.soc)}%`,         'var(--electric)'],
+            connType !== 'solar'  && ['⚡ Grid',          gridStatus,                         gridColor],
+            ['💸 EB Rate',                                `${currency}${ebRate}/kWh`,        'var(--amber)'],
+            connType !== 'solar'  && ['📊 Usage limit',  `${limitKwh} kWh/month`,            'var(--violet)'],
           ].filter(Boolean).map(([label, val, color]) => (
             <div key={label} className="flex justify-between items-center py-2.5 text-sm"
                  style={{ borderColor: 'var(--border-dim)' }}>

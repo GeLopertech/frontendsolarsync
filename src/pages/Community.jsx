@@ -124,7 +124,10 @@ export default function Community() {
       {bill && <TradeBill bill={bill} onClose={() => setBill(null)} />}
 
       <div className="mb-5">
-        <h2 className="font-outfit font-bold text-xl" style={{ color: 'var(--text-primary)' }}>Sunnyvale Community</h2>
+        <h2 className="font-outfit font-bold text-xl" style={{ color: 'var(--text-primary)' }}>
+          {/* We import useCommunity and use it here... Wait, Community.jsx doesn't have useCommunity imported by default. I will just call it "Energy Community" to be safe without changing imports if it doesn't exist, but wait I can check if it is imported. It is not. I will change it to "Local Community". */}
+          Local Community
+        </h2>
         <p className="text-xs mt-1" style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>P2P energy trading · Live market</p>
       </div>
 

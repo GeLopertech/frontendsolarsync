@@ -48,15 +48,6 @@ export default function Topbar({ activePage, onMenuOpen, onOptimize }) {
         {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
       </button>
 
-      {/* Optimize btn (desktop) */}
-      <button
-        className="btn-neon px-4 py-2 text-sm flex items-center gap-2 desktop-only"
-        onClick={onOptimize}
-        id="topbar-optimize-btn"
-      >
-        <Zap size={14} />
-        Optimize
-      </button>
     </div>
   );
 }

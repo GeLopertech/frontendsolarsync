@@ -39,9 +39,9 @@ const SOLAR_PACKAGES = [
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background:'rgba(8,8,8,0.95)', border:'1px solid rgba(255,255,255,0.08)',
+    <div style={{ background:'var(--bg-panel)', border:'1px solid var(--border-dim)',
       borderRadius:10, padding:'10px 14px', backdropFilter:'blur(16px)' }}>
-      <p style={{ color:'rgba(255,255,255,0.4)', fontSize:11, marginBottom:6, fontFamily:'JetBrains Mono' }}>{label}</p>
+      <p style={{ color:'var(--text-muted)', fontSize:11, marginBottom:6, fontFamily:'JetBrains Mono' }}>{label}</p>
       {payload.map(p => (
         <p key={p.dataKey} style={{ color:p.color, fontSize:12, fontFamily:'JetBrains Mono', marginBottom:2 }}>
           {p.name}: <strong>{p.value} {p.dataKey === 'bill' ? '₹' : 'kWh'}</strong>
@@ -62,8 +62,8 @@ export default function GridPage({ live }) {
   const gridType     = community?.gridType  || 'TANGEDCO';
 
   // ── EB Calculator ─────────────────────────────────────────────────────────
-  const [ebUnits,  setEbUnits]  = useState(baseGridKwh.toString());
-  const ebBill = calcEBBill(parseFloat(ebUnits) || 0, tariffSlabs, fixedCharge);
+  const ebUnits = baseGridKwh;
+  const ebBill = calcEBBill(ebUnits, tariffSlabs, fixedCharge);
 
   // ── Monthly data ──────────────────────────────────────────────────────────
   const monthlyData = generateMonthlyData(baseGridKwh, solarCapKw);
@@ -180,10 +180,10 @@ export default function GridPage({ live }) {
                 <stop offset="100%" stopColor="#39FF14" stopOpacity={0.2} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-            <XAxis dataKey="month" tick={{ fill:'rgba(255,255,255,0.35)', fontSize:10, fontFamily:'JetBrains Mono' }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fill:'rgba(255,255,255,0.25)', fontSize:10 }} axisLine={false} tickLine={false} />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill:'rgba(255,255,255,0.03)' }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-dim)" vertical={false} />
+            <XAxis dataKey="month" tick={{ fill:'var(--text-secondary)', fontSize:10, fontFamily:'JetBrains Mono' }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill:'var(--text-secondary)', fontSize:10 }} axisLine={false} tickLine={false} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill:'var(--border-dim)' }} />
             <Bar dataKey="grid"  name="Grid (EB)" fill="url(#gradGrid)"  radius={[3,3,0,0]} />
             <Bar dataKey="solar" name="Solar"      fill="url(#gradSolar)" radius={[3,3,0,0]} />
           </BarChart>
@@ -204,15 +204,15 @@ export default function GridPage({ live }) {
         <GlassCard variant="amber">
           <div className="font-outfit font-bold text-sm mb-4" style={{ color:'var(--text-primary)' }}>⚡ EB Bill Calculator</div>
           <div className="mb-3">
-            <label className="block text-xs mb-1" style={{ color:'var(--text-muted)' }}>Units consumed (kWh)</label>
-            <input className="form-input text-sm" type="number" min="0" value={ebUnits}
-              onChange={e => setEbUnits(e.target.value)} placeholder="e.g. 180" />
+            <label className="block text-xs mb-1" style={{ color:'var(--text-muted)' }}>Units consumed (kWh) <span className="text-[9px] text-amber-500 ml-1">(Auto-calculated)</span></label>
+            <input className="form-input text-sm" type="number" value={ebUnits} disabled
+              style={{ background: 'rgba(255,255,255,0.02)', color: 'var(--text-secondary)', cursor: 'not-allowed' }} />
           </div>
           {/* Slab breakdown */}
           <div className="mb-3 p-3 rounded-xl" style={{ background:'rgba(245,158,11,0.04)', border:'1px solid rgba(245,158,11,0.1)' }}>
             {tariffSlabs.map((s, i) => {
               const prev = i === 0 ? 0 : tariffSlabs[i-1].upTo;
-              const units = parseFloat(ebUnits) || 0;
+              const units = ebUnits;
               const inSlab = Math.max(0, Math.min(units - prev, s.upTo === Infinity ? units : s.upTo - prev));
               if (inSlab <= 0 && units < prev) return null;
               return (
@@ -240,7 +240,7 @@ export default function GridPage({ live }) {
           </div>
           <div className="mt-3 text-xs" style={{ color:'var(--text-muted)' }}>
             💡 With solar offset: <span style={{ color:'#39FF14', fontFamily:'JetBrains Mono' }}>
-              ₹{calcEBBill(Math.max(0, (parseFloat(ebUnits)||0) - solarCapKw * 150), tariffSlabs, fixedCharge)}
+              ₹{calcEBBill(Math.max(0, ebUnits - solarCapKw * 150), tariffSlabs, fixedCharge)}
             </span> estimated
           </div>
         </GlassCard>
@@ -292,12 +292,10 @@ export default function GridPage({ live }) {
                 <span className="flex-1 text-xs" style={{ color:'var(--text-secondary)' }}>{a.name}</span>
                 <div className="flex items-center gap-1">
                   <span className="text-[10px]" style={{ color:'var(--text-muted)' }}>hrs/day:</span>
-                  <input type="number" min="0" max="24"
-                    style={{ width:40, background:'rgba(255,255,255,0.05)', border:'1px solid var(--border-dim)',
-                      borderRadius:6, padding:'2px 4px', color:'var(--text-primary)', fontSize:11,
-                      fontFamily:'JetBrains Mono', textAlign:'center' }}
-                    value={a.hoursPerDay}
-                    onChange={e => setAppList(prev => prev.map(x => x.id===a.id ? {...x, hoursPerDay: +e.target.value} : x))} />
+                  <input type="number" value={a.hoursPerDay} disabled readOnly
+                    style={{ width:40, background:'rgba(255,255,255,0.02)', border:'1px solid var(--border-dim)',
+                      borderRadius:6, padding:'2px 4px', color:'var(--text-secondary)', fontSize:11,
+                      fontFamily:'JetBrains Mono', textAlign:'center', cursor: 'not-allowed' }} />
                 </div>
                 <span style={{ color:'var(--text-muted)', fontSize:10, fontFamily:'JetBrains Mono', minWidth:52, textAlign:'right' }}>
                   {kwhPerMonth} kWh

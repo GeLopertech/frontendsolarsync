@@ -92,9 +92,12 @@ export default function Battery({ live, history }) {
                 : 'Standby'}
           </p>
           {status && (
-            <p className="text-xs mt-1 text-center" style={{ color: 'var(--text-muted)' }}>
-              ~{status.estimatedBackupHours}h backup available
-            </p>
+            <div className="flex flex-col items-center mt-3">
+              <span style={{ fontSize: 18, color: '#F59E0B', fontFamily: 'JetBrains Mono', fontWeight: 'bold' }}>
+                ⏳ {Math.floor(status.estimatedBackupHours)}h {Math.round((status.estimatedBackupHours % 1) * 60)}m
+              </span>
+              <span className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>Estimated time to last</span>
+            </div>
           )}
         </GlassCard>
 

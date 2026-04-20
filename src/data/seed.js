@@ -62,8 +62,8 @@ export const insights = [
 // Each community has solar capacity, avg domestic grid usage, EB tariff slab
 export const communities = [
   {
-    value:         'sunnyvale',
-    label:         '🌞 Sunnyvale Community',
+    value:         'porur',
+    label:         '☀️ Porur',
     members:       12,
     // Solar profile
     solarPanels:   24,
@@ -84,8 +84,8 @@ export const communities = [
     gridType:      'TANGEDCO',
   },
   {
-    value:         'greenpark',
-    label:         '🌿 Green Park Community',
+    value:         'iyyappanthagal',
+    label:         '🌿 Iyyappanthagal',
     members:       8,
     solarPanels:   18,
     panelWatts:    380,
@@ -103,8 +103,8 @@ export const communities = [
     gridType:      'TANGEDCO',
   },
   {
-    value:         'solarhill',
-    label:         '⚡ Solar Hill Community',
+    value:         'kattupakkam',
+    label:         '⚡ Kattupakkam',
     members:       21,
     solarPanels:   32,
     panelWatts:    450,
@@ -122,8 +122,8 @@ export const communities = [
     gridType:      'TANGEDCO',
   },
   {
-    value:         'ecoblock',
-    label:         '🏘️ EcoBlock Community',
+    value:         'poonamalle',
+    label:         '🏘️ Poonamalle',
     members:       6,
     solarPanels:   12,
     panelWatts:    350,
@@ -141,8 +141,8 @@ export const communities = [
     gridType:      'TANGEDCO',
   },
   {
-    value:         'brightzone',
-    label:         '🔆 BrightZone Community',
+    value:         'thirumazhisai',
+    label:         '🔆 Thirumazhisai',
     members:       15,
     solarPanels:   28,
     panelWatts:    400,
