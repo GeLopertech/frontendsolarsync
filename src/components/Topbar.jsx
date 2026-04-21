@@ -1,10 +1,11 @@
-import { Menu, Zap, Sun, Moon } from 'lucide-react';
+import { Menu, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import NotificationPanel from './NotificationPanel';
 
 const pageTitles = {
   dashboard: 'Dashboard',
   forecast: 'Solar Forecast',
-  automation: 'AI Automation',
+  optimize: 'AI Optimizer',
   battery: 'Battery Management',
   community: 'Community',
   insights: 'AI Insights',
@@ -40,8 +41,12 @@ export default function Topbar({ activePage, onMenuOpen, onOptimize }) {
         <span className="text-xs font-semibold" style={{ color: 'var(--electric)', fontFamily: 'JetBrains Mono' }}>LIVE</span>
       </div>
 
+      {/* Notification Bell */}
+      <NotificationPanel />
+
+      {/* Theme Toggle */}
       <button
-        className="btn-ghost w-9 h-9 flex items-center justify-center p-0 ml-2"
+        className="btn-ghost w-9 h-9 flex items-center justify-center p-0"
         onClick={toggleTheme}
         aria-label="Toggle theme"
       >
