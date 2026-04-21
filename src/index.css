@@ -6,23 +6,23 @@
 :root {
   --neon: #39FF14;
   --electric: #00F0FF;
-  --base: #050505;
-  --surface: rgba(255, 255, 255, 0.04);
-  --surface-hover: rgba(255, 255, 255, 0.07);
-  --border-dim: rgba(255, 255, 255, 0.07);
+  --base: #1a1a1f; /* Premium Smoke Grey */
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --border-dim: rgba(255, 255, 255, 0.08);
   --border-neon: rgba(57, 255, 20, 0.3);
   --border-elec: rgba(0, 240, 255, 0.3);
   --border-amber: rgba(245, 158, 11, 0.3);
-  --text-primary: rgba(255, 255, 255, 0.92);
-  --text-secondary: rgba(255, 255, 255, 0.65);
-  --text-muted: rgba(255, 255, 255, 0.38);
+  --text-primary: rgba(255, 255, 255, 0.94);
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.42);
   --glow-neon: 0 0 20px rgba(57, 255, 20, 0.35);
   --glow-elec: 0 0 20px rgba(0, 240, 255, 0.35);
   --glow-amber: 0 0 20px rgba(245, 158, 11, 0.35);
   --glow-rose: 0 0 20px rgba(255, 59, 92, 0.35);
   --rose: #FF3B5C;
-  --bg-panel: rgba(5, 5, 5, 0.95);
-  --bg-topbar: rgba(5, 5, 5, 0.85);
+  --bg-panel: #212126;
+  --bg-topbar: rgba(33, 33, 38, 0.85);
 }
 
 :root[data-theme='light'] {

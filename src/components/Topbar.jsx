@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 const pageTitles = {
   dashboard: 'Dashboard',
   forecast: 'Solar Forecast',
-  optimize: 'AI Optimizer',
+  automation: 'AI Automation',
   battery: 'Battery Management',
   community: 'Community',
   insights: 'AI Insights',

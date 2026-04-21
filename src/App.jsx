@@ -6,7 +6,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Forecast from './pages/Forecast';
-import Optimizer from './pages/Optimizer';
+import AIAutomation from './pages/AIAutomation';
 import Battery from './pages/Battery';
 import Community from './pages/Community';
 import Insights from './pages/Insights';
@@ -46,7 +46,7 @@ function AppShell() {
   const pages = {
     dashboard: Dashboard,
     forecast:  Forecast,
-    optimize:  Optimizer,
+    automation: AIAutomation,
     battery:   Battery,
     community: Community,
     insights:  Insights,

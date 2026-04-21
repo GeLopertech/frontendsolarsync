@@ -4,7 +4,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        base: '#050505',
+        base: '#1a1a1f',
+        smoke: {
+          light: '#2c2c34',
+          DEFAULT: '#212126',
+          dark: '#1a1a1f',
+        },
         neon: '#39FF14',
         electric: '#00F0FF',
         amber: '#F59E0B',

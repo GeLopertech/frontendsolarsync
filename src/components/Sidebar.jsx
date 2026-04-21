@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 const NAV = [
   { id: 'dashboard',  label: 'Dashboard',      icon: LayoutDashboard, section: 'MAIN' },
   { id: 'forecast',   label: 'Solar Forecast',  icon: Sun,             section: null  },
-  { id: 'optimize',   label: 'Optimizer',       icon: Zap,             section: null  },
+  { id: 'automation', label: 'AI Automation',   icon: Zap,             section: null  },
   { id: 'battery',    label: 'Battery',         icon: Battery,         section: null  },
   { id: 'grid',       label: 'Domestic Grid',   icon: Plug,            section: null  },
   { id: 'community',  label: 'Community',       icon: Users,           section: 'COMMUNITY' },
