@@ -206,3 +206,11 @@ export const weeklyCommunityRates = [
   { day: 'Mon', avgRate: 0.125, status: 'down' },
   { day: 'Tue', avgRate: 0.132, status: 'up' },
 ];
+
+// ── Mock Community Chat ───────────────────────────────────────────────────────
+export const mockChatMessages = [
+  { id: 1, user: 'Maria Chen', text: 'Hey everyone, noticed the community buy rate is really low today. Good time to charge batteries!', time: '09:12 AM' },
+  { id: 2, user: 'James Park', text: 'Thanks Maria! Charging mine now. Anyone selling surplus around 2 PM?', time: '09:45 AM' },
+  { id: 3, user: 'Priya Sharma', text: 'I should have about 2kWh extra by then. Setting a sell offer at 0.140.', time: '10:02 AM' },
+  { id: 4, user: 'Tom Wright', text: 'Just finished cleaning my panels, seeing a 10% boost. Highly recommend it!', time: '10:30 AM' },
+];

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import GlassCard from '../components/ui/GlassCard';
 import StatCard from '../components/ui/StatCard';
-import { communityMembers, weeklyCommunityRates } from '../data/seed';
+import { communityMembers, weeklyCommunityRates, mockChatMessages } from '../data/seed';
 import { useTrading } from '../hooks/useTrading';
+import { useAuth } from '../context/AuthContext';
 
 // ── Bill receipt component ────────────────────────────────────────────────────
 function TradeBill({ bill, onClose }) {
@@ -139,6 +140,33 @@ export default function Community() {
       setBill({ ...res.data, type: 'buy' });
     } catch (err) { setError(err.message); }
   };
+  // ── Chat logic ───────────────────────────────────────────────────────────
+  const { user } = useAuth();
+  const [chatMessages, setChatMessages] = useState(() => {
+    const saved = localStorage.getItem('ss_chat_messages');
+    return saved ? JSON.parse(saved) : mockChatMessages;
+  });
+  const [newMessage, setNewMessage] = useState('');
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    localStorage.setItem('ss_chat_messages', JSON.stringify(chatMessages));
+  }, [chatMessages]);
+
+  const sendMsg = (e) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
+    const msg = {
+      id: Date.now(),
+      user: user?.name || 'Anonymous',
+      text: newMessage,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    setChatMessages([...chatMessages, msg]);
+    setNewMessage('');
+  };
+
 
   return (
     <div className="p-4 md:p-6 animate-fade-in">
@@ -348,6 +376,57 @@ export default function Community() {
           ))}
         </GlassCard>
       )}
+
+      {/* Community Chat */}
+      <GlassCard className="mt-4">
+        <div className="flex items-center justify-between mb-4">
+          <span className="font-outfit font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Community Chat</span>
+          <span className="badge badge-neon">Online</span>
+        </div>
+        
+        <div className="chat-container mb-4 pr-2" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+          <div className="flex flex-col gap-3">
+            {chatMessages.map(m => {
+              const isMe = m.user === user?.name;
+              return (
+                <div key={m.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                  <div className="flex items-center gap-1.5 mb-1 px-1">
+                    <span className="text-[10px] font-bold" style={{ color: isMe ? 'var(--neon)' : 'var(--text-muted)' }}>
+                      {m.user}
+                    </span>
+                    <span className="text-[9px]" style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>
+                      {m.time}
+                    </span>
+                  </div>
+                  <div className="px-3 py-2 rounded-2xl text-[11px]"
+                       style={{
+                         background: isMe ? 'rgba(57,255,20,0.06)' : 'rgba(255,255,255,0.03)',
+                         border: `1px solid ${isMe ? 'rgba(57,255,20,0.2)' : 'var(--border-dim)'}`,
+                         color: isMe ? '#e2e2e2' : 'var(--text-secondary)',
+                         maxWidth: '85%',
+                         lineHeight: 1.5,
+                       }}>
+                    {m.text}
+                  </div>
+                </div>
+              );
+            })}
+            <div ref={chatEndRef} />
+          </div>
+        </div>
+
+        <form onSubmit={sendMsg} className="flex gap-2">
+          <input 
+            className="form-input text-xs" 
+            placeholder="Type a message..." 
+            value={newMessage}
+            onChange={e => setNewMessage(e.target.value)}
+          />
+          <button type="submit" className="btn-neon py-2 px-4 text-xs font-bold" disabled={!newMessage.trim()}>
+            Send
+          </button>
+        </form>
+      </GlassCard>
     </div>
   );
 }
